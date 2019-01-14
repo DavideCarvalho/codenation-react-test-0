@@ -6,20 +6,40 @@ import recipes from '../sample_data/recipes.json'
 class App extends Component {
   constructor(props) {
     super(props);
-
-    this.recipes = recipes.results;
+    const { results } = recipes;
+    console.log(results);
     this.state = {
-      searchString: ''
+      searchString: '',
+      recipes: results,
+      initialRecipes: results,
     };
+  }
+
+  searchStringHandler(e) {
+    this.setState({ searchString: e.target.value });
+    if (e.target.value) {
+      const filteredRecipes = this.state.initialRecipes.filter((_recipe, id) => {
+        const insensitiveTitle = _recipe.title.toLowerCase();
+        const insensitiveIngredients = _recipe.ingredients.toLowerCase();
+        return insensitiveTitle.indexOf(e.target.value.toLowerCase()) !== -1 || insensitiveIngredients.indexOf(e.target.value.toLowerCase()) !== -1
+      });
+      this.setState({
+        recipes: filteredRecipes,
+      })
+      return;
+    }
+    this.setState({
+      recipes: this.state.initialRecipes,
+    });
   }
 
   render() {
     return (
       <div className="App">
-        <Navbar onChange={(e) => this.state.searchString = e.target.value}/>
+        <Navbar searchString={this.searchString} onInputHandler={(e) => this.searchStringHandler(e)}/>
         <div className="container mt-10">
           <div className="row">
-            {this.recipes.map((recipe, id) => <RecipeItem key={id} {...recipe}  />)}
+            {this.state.recipes.map((recipe, id) => <RecipeItem key={id} {...recipe} />)}
           </div>
         </div>
       </div>
